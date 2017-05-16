@@ -32,6 +32,12 @@ create type sensor_type as enum (
     'odometer'
 );
 
+create type datasource_type as enum (
+    'image',
+    'route',
+    'lidar'
+);
+
 create table platform(
     id serial primary key
     , name varchar unique not null
@@ -73,33 +79,12 @@ create table session(
 create table datasource(
     id serial primary key
     , uri varchar
+    , type datasource_type not null
+    , parameters jsonb
+    , capture_time timestamptz
     , session int references session(id) on delete cascade not null
     , referential int references referential(id) on delete cascade not null
     , constraint uniqdatasource unique(uri, session, referential)
-);
-
-
-create table image(
-    id bigserial primary key
-    , uri varchar
-    , exif jsonb
-    , etime timestamptz
-    , datasource bigint references li3ds.datasource(id) on delete cascade
-    , constraint uniqimageuri unique(uri, datasource)
-);
-
-create table route(
-    id bigserial primary key
-    , uri varchar
-    , datasource bigint references li3ds.datasource(id) on delete cascade
-    , constraint uniqrouteuri unique(uri, datasource)
-);
-
-create table lidar(
-    id bigserial primary key
-    , uri varchar
-    , datasource bigint references li3ds.datasource(id) on delete cascade
-    , constraint uniqlidaruri unique(uri, datasource)
 );
 
 create table processing(
